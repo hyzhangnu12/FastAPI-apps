@@ -1,0 +1,20 @@
+version: '3'
+name: postgres
+services:
+  pgadmin4:
+    image: dpage/pgadmin4:7
+    container_name: pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: $PGADMIN_DEFAULT_EMAIL
+      PGADMIN_DEFAULT_PASSWORD: $PGADMIN_DEFAULT_PASSWORD
+    ports:
+      - mode: ingress
+        target: 80
+        published: "8080"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: ./postgres/pgadmin4_data
+        target: /var/lib/pgadmin
+        bind:
+          create_host_path: true
