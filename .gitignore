@@ -162,3 +162,4 @@ cython_debug/
 # data
 pip_list_history/
 postgres/
+private_ymls/
