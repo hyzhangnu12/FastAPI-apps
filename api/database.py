@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 DB_ENGINE = "postgresql"
 DB_DRIVER = "psycopg"
 POSTGRES_USER = "dbuser"
-POSTGRES_PASSWORD = "123"
+POSTGRES_PASSWORD = "ewq123"
 HOST = "localhost"
 PORT = "5432"
 DBNAME = "dbuser" #"fastapi"

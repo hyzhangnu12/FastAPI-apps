@@ -8,15 +8,7 @@ class ItemBase(BaseModel):
     published: bool | None = True
 
 class ItemCreate(ItemBase):
-    pass
-
-class Item(ItemBase):
-    id: int
     owner_id: int
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class UserBase(BaseModel):
@@ -25,6 +17,27 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
+
+class UserUpdateUsername(BaseModel):
+    username: str
+
+class UserUpdatePassword(BaseModel):
+    password_0: str
+    password_1: str
+    password_2: str
+
+
+
+
+class Item(ItemBase):
+    id: int
+    owner_id: int
+    created_at: datetime
+    updated_at: datetime
+    owner: UserBase
+
+    class Config:
+        from_attributes = True
 
 class User(UserBase):
     id: int
@@ -36,10 +49,13 @@ class User(UserBase):
     class Config:
         from_attributes = True
 
+
+
+
     
 class Token(BaseModel):
     access_token: str
-    token_type: str
+    token_type: str | None = "bearer"
 
 class TokenData(BaseModel):
-    user_id: int | None = None
+    user_id: int

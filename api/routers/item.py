@@ -1,49 +1,54 @@
-@app.get("/items/", response_model=list[schemas.Item])
-def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    items = crud.get_items(db, skip=skip, limit=limit)
-    return items
+from fastapi import APIRouter
+from typing import Annotated
+from sqlalchemy.orm import Session
+from datetime import timedelta
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
+from .. import database, schemas, models
+from ..controls import crud, oauth2_token
+from . import exception_code
+
+router = APIRouter(tags=['items'], prefix='/items')
 
 
-@app.post("/users/", response_model=schemas.User)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(db, email=user.email)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    return crud.create_user(db=db, user=user)
-
-
-@app.get("/users/", response_model=list[schemas.User])
-def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    users = crud.get_users(db, skip=skip, limit=limit)
-    print(db.query(models.User))
-    return users
-
-
-@app.get("/users/{user_id}", response_model=schemas.User)
-def read_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = crud.get_user(db, user_id=user_id)
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return db_user
-
-@app.put("/users/{user_id}", response_model=schemas.User)
-def update_user(user_id: int, user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = crud.get_user(db, user_id=user_id)
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return crud.update_user(db=db, user_id=user_id, user=user)
-
-@app.delete("/users/{user_id}", status_code=204)
-def delete_user(user_id: int, db: Session = Depends(get_db)):
-    db_query = db.query(models.User).filter(models.User.id ==  user_id)
-    if db_query.first() is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    db_query.delete(synchronize_session=False)
-    db.commit()
-    return Response(status_code=204)
-
-@app.post("/users/{user_id}/items/", response_model=schemas.Item)
-def create_item_for_user(
-    user_id: int, item: schemas.ItemCreate, db: Session = Depends(get_db)
+@router.get("/", response_model=list[schemas.Item])
+async def read_items(
+    current_user: Annotated[schemas.User, Depends(oauth2_token.get_current_active_user)],
+    db: Annotated[Session, Depends(database.get_db)]
 ):
-    return crud.create_user_item(db=db, item=item, user_id=user_id)
+    return crud.get_items(db)
+
+@router.post("/", response_model=schemas.Item)
+async def create_item(
+    current_user: Annotated[schemas.User, Depends(oauth2_token.get_current_active_user)],
+    db: Annotated[Session, Depends(database.get_db)],
+    item: schemas.ItemBase
+):
+    return crud.create_item(db=db, user_id=current_user.id, item=item)
+
+@router.get("/{item_id}", response_model=schemas.Item)
+async def read_item(
+    current_user: Annotated[schemas.User, Depends(oauth2_token.get_current_active_user)],
+    db: Annotated[Session, Depends(database.get_db)],
+    item_id: int,
+):
+    db_item = crud.get_item(db=db, item_id=item_id) 
+    if db_item is None:
+        raise exception_code.E_code["404"]
+    return db_item
+
+@router.put("/{item_id}/update", response_model=schemas.Item)
+async def update_item(
+    current_user: Annotated[schemas.User, Depends(oauth2_token.get_current_active_user)],
+    db: Annotated[Session, Depends(database.get_db)],
+    new_item: schemas.ItemBase, item_id: int
+):
+    return crud.update_item(db=db, user_id=current_user.id, item_id=item_id, new_item=new_item) 
+
+@router.delete("/{item_id}/delete", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_item(
+    current_user: Annotated[schemas.User, Depends(oauth2_token.get_current_active_user)],
+    db: Annotated[Session, Depends(database.get_db)],
+    item_id: int
+):
+    crud.delete_item(db=db, user_id=current_user.id, item_id=item_id) 
