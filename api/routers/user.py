@@ -7,6 +7,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from .. import database, schemas, models
 from ..controls import crud, oauth2_token
 from . import exception_code
+from ..config import settings
 
 router = APIRouter(tags=['users'], prefix='/users')
 
@@ -28,7 +29,7 @@ async def login(
         raise exception_code.E_code["401"]
     tokenData = schemas.TokenData(user_id=db_user.id)
     
-    access_token_expires = timedelta(minutes=oauth2_token.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     bearer_token: schemas.Token = oauth2_token.create_access_token(
         payload={"sub": str(db_user.id)}, expires_delta=access_token_expires
     )

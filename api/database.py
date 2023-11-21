@@ -1,16 +1,13 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from .config import settings
 
 
-DB_ENGINE = "postgresql"
-DB_DRIVER = "psycopg"
-POSTGRES_USER = "dbuser"
-POSTGRES_PASSWORD = "ewq123"
-HOST = "localhost"
-PORT = "5432"
-DBNAME = "dbuser" #"fastapi"
-SQLALCHEMY_DATABASE_URL = f'{DB_ENGINE}+{DB_DRIVER}://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{HOST}:{PORT}/{DBNAME}'
+SQLALCHEMY_DATABASE_URL = f'{settings.DB_ENGINE}+{settings.DB_DRIVER}://'\
+                        + f'{settings.DB_USER}:{settings.DB_PASSWORD}'\
+                        + f'@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}'
 
+# print(SQLALCHEMY_DATABASE_URL)
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
