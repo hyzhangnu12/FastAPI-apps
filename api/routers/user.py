@@ -5,7 +5,7 @@ from datetime import timedelta
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from .. import database, schemas, models
-from ..controls import crud, oauth2_token
+from ..core import crud, oauth2_token
 from . import exception_code
 from ..config import settings
 
@@ -27,7 +27,8 @@ async def login(
     db_user = oauth2_token.authenticate_user(db, form_data.username, form_data.password)
     if db_user is None:
         raise exception_code.E_code["401"]
-    tokenData = schemas.TokenData(user_id=db_user.id)
+    #tokenData = schemas.TokenDataUser(id=db_user.id)
+    #print(tokenData)
     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     bearer_token: schemas.Token = oauth2_token.create_access_token(

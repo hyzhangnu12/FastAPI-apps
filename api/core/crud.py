@@ -63,9 +63,9 @@ def update_item(db: Session, user_id: int, item_id: int, new_item: schemas.ItemB
     db_item = db_query.first()
     if db_item is None:
         raise exception_code.E_code["404"]
-    elif db_item.owner_id != user_id:
+    elif db_item.owner_id != user_id: # type: ignore
         raise exception_code.E_code["4031"]
-    db_query.update(new_item.dict(), synchronize_session=False)
+    db_query.update(new_item.model_dump(), synchronize_session=False) # type: ignore
     db.commit()
     db.refresh(db_item)
     return db_item
@@ -75,7 +75,7 @@ def delete_item(db: Session, user_id: int, item_id: int):
     db_item = db_query.first()
     if db_item is None:
         raise exception_code.E_code["404"]
-    elif db_item.owner_id != user_id:
+    elif db_item.owner_id != user_id: # type: ignore
         raise exception_code.E_code["4031"]
     db_query.delete(synchronize_session=False)
     db.commit()
