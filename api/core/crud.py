@@ -52,7 +52,7 @@ def get_items(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Item).offset(skip).limit(limit).all()
 
 def create_item(db: Session, user_id: int, item: schemas.ItemBase):
-    db_item = models.Item(**item.dict(), owner_id=user_id)
+    db_item = models.Item(**item.model_dump(), owner_id=user_id)
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
@@ -79,3 +79,21 @@ def delete_item(db: Session, user_id: int, item_id: int):
         raise exception_code.E_code["4031"]
     db_query.delete(synchronize_session=False)
     db.commit()
+
+
+
+def get_votes(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.Vote).offset(skip).limit(limit).all()
+
+def create_vote(db: Session, user_id: int, item_id: int):
+    db_query = db.query(models.Vote).filter(models.Vote.user_id==user_id, models.Vote.item_id==item_id)
+    db_vote = db_query.first()
+    if db_vote is not None:
+        db_query.delete(synchronize_session=False)
+        db.commit()
+    else:
+        db_vote = models.Vote(user_id=user_id, item_id=item_id)
+        db.add(db_vote)
+        db.commit()
+        db.refresh(db_vote)
+        return db_vote

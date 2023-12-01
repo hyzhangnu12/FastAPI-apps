@@ -50,6 +50,17 @@ class User(UserBase):
         from_attributes = True
 
 
+class Vote(BaseModel):
+    user_id: int
+    item_id: int
+    created_at: datetime
+    updated_at: datetime
+    voter: UserBase
+    item: ItemCreate
+
+    class Config:
+        from_attributes = True
+
 
 
     

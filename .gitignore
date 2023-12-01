@@ -128,7 +128,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-.vscode
+.vscode/
 .DS_Store
 
 # Spyder project settings
@@ -166,4 +166,5 @@ cython_debug/
 pip_list_history/
 postgres/
 private_ymls/
-api/controls/
+.github/workflows/build_deploy.yml
+pg_db.yml

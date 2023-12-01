@@ -1,7 +1,6 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy.sql import func
-from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 
 Base = declarative_base()
@@ -18,6 +17,7 @@ class User(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=datetime.utcnow)
 
     items = relationship("Item", back_populates="owner", passive_deletes=True)
+    votings = relationship("Vote", back_populates="voter", passive_deletes=True)
 
 
 class Item(Base):
@@ -32,3 +32,16 @@ class Item(Base):
     owner_id = Column(Integer, ForeignKey("users.id", ondelete='CASCADE'), nullable=False)
 
     owner = relationship("User", back_populates="items")
+    voteds = relationship("Vote", back_populates="item", passive_deletes=True)
+
+
+class Vote(Base):
+    __tablename__ = "votes"
+
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True, nullable=False)
+    item_id = Column(Integer, ForeignKey("items.id", ondelete='CASCADE'), primary_key=True, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=datetime.utcnow)
+
+    voter = relationship("User", back_populates="votings")
+    item = relationship("Item", back_populates="voteds")

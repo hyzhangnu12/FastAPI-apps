@@ -16,4 +16,4 @@ class Settings(BaseSettings):
     class Config:
         env_file = 'api/.api_env'
 
-settings = Settings()
+settings = Settings() # type: ignore

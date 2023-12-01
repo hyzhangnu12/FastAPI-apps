@@ -1,10 +1,8 @@
 from fastapi import APIRouter
 from typing import Annotated
 from sqlalchemy.orm import Session
-from datetime import timedelta
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
-from .. import database, schemas, models
+from .. import database, schemas
 from ..core import crud, oauth2_token
 from . import exception_code
 
